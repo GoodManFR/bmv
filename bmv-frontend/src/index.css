@@ -1,0 +1,984 @@
+/* ============================================================
+   BMV — Style visuel complet (étape 11)
+   Police : Nunito (Google Fonts)
+   Fond   : #1a1a2e avec pattern emojis alcool en transparence
+   Accents: orange #ff6b35 / jaune #ffd166 / rouge #ef476f / vert #06d6a0
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+/* === RESET === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* === VARIABLES === */
+:root {
+  --bg:            #1a1a2e;
+  --bg-card:       rgba(42, 42, 78, 0.88);
+  --bg-navbar:     #2a2a4e;
+  --text:          #ffffff;
+  --text-muted:    #a0a0b0;
+  --accent:        #e94560;        /* rouge — conservé pour compatibilité */
+  --accent-orange: #ff6b35;
+  --accent-yellow: #ffd166;
+  --accent-red:    #ef476f;
+  --accent-green:  #06d6a0;
+  --border:        rgba(255, 255, 255, 0.1);
+  --navbar-height: 64px;
+  --radius:        14px;
+
+  font-family: 'Nunito', system-ui, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  color: var(--text);
+  background: var(--bg);
+}
+
+/* === FOND + PATTERN EMOJIS === */
+body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100svh;
+  position: relative;
+}
+
+/* Pattern d'emojis alcool en très faible opacité — CSS pur */
+body::before {
+  content: "🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉 🍺🍷🥴🍻🥂🍾🤮🫗🥃🧉";
+  position: fixed;
+  inset: 0;
+  font-size: 2rem;
+  line-height: 2.8rem;
+  opacity: 0.07;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  word-break: break-all;
+  display: block;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+/* === CONTENEUR PRINCIPAL === */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+/* Desktop : contenu centré dans 420px */
+@media (min-width: 480px) {
+  .app-container {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+}
+
+/* === PAGES === */
+.page {
+  flex: 1;
+  padding: 20px 16px calc(var(--navbar-height) + 20px);
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Page centrée verticalement (login, loading…) */
+.page-centered {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100svh;
+  padding-bottom: 20px;
+}
+
+/* === TYPOGRAPHIE === */
+h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* === CARTES === */
+.card {
+  background: var(--bg-card);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  animation: fadeIn 0.25s ease;
+}
+
+/* === BAC === */
+.bac-value {
+  font-size: 56px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 8px 0;
+  line-height: 1;
+  transition: color 0.4s ease;
+}
+
+/* Pulsation douce quand BAC > 0.8 */
+.bac-value.pulsing {
+  animation: bacPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes bacPulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.04); }
+}
+
+.bac-status {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.bac-status.legal {
+  color: var(--accent-green);
+}
+
+.bac-status.illegal {
+  color: var(--accent-red);
+}
+
+/* === BOUTONS === */
+
+/* Bouton principal — gradient orange → jaune */
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow));
+  color: #1a1a2e;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 800;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: opacity 0.2s, transform 0.15s ease;
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-primary:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+.btn-primary:not(:disabled):active {
+  transform: scale(0.95);
+}
+
+/* Bouton secondaire — bordure blanche, fond transparent */
+.btn-secondary {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Bouton danger — fond rouge */
+.btn-danger {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: var(--accent-red);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s ease;
+}
+
+.btn-danger:active {
+  transform: scale(0.95);
+}
+
+/* Bouton ghost — discret, texte muted */
+.btn-ghost {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  font-size: 14px;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  margin-top: 8px;
+  text-align: center;
+  transition: color 0.2s;
+}
+
+.btn-ghost:hover {
+  color: var(--text);
+}
+
+/* === DISCLAIMER LÉGAL === */
+.disclaimer {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 24px;
+  line-height: 1.5;
+  opacity: 0.75;
+  padding: 0 8px;
+}
+
+/* === NAVBAR MOBILE (bas de l'écran) === */
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--navbar-height);
+  background: var(--bg-navbar);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 100;
+}
+
+@media (min-width: 480px) {
+  .navbar {
+    max-width: 420px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 14px 14px 0 0;
+  }
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-decoration: none;
+  color: var(--text-muted);
+  padding: 10px 16px 8px;
+  border-radius: 8px;
+  transition: color 0.2s;
+  border-top: 3px solid transparent;
+}
+
+.nav-item.active {
+  color: var(--accent-orange);
+  border-top-color: var(--accent-orange);
+}
+
+.nav-icon {
+  font-size: 20px;
+}
+
+.nav-label {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* === SCANNER === */
+
+.text-muted {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.scanner-search-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+/* Champ de saisie générique */
+.scanner-input {
+  flex: 1;
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(26, 26, 46, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: 'Nunito', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.scanner-input:focus {
+  border-color: var(--accent-orange);
+}
+
+.scanner-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Viewport caméra */
+.scanner-viewport {
+  width: 100%;
+  min-height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  position: relative;
+}
+
+.scanner-hint {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.scanner-error {
+  border-color: var(--accent-red) !important;
+  color: var(--accent-red);
+}
+
+.scanner-error-inline {
+  color: var(--accent-red);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.scanner-not-found {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+/* Résultat produit trouvé */
+.product-result {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.product-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background: #000;
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-brand {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.product-abv {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--accent-orange);
+}
+
+/* Grille de boutons de volume */
+.volume-label {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text-muted);
+}
+
+.volume-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.btn-volume {
+  padding: 8px 16px;
+  background: rgba(26, 26, 46, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+
+.btn-volume:hover {
+  border-color: var(--accent-orange);
+  transform: scale(1.05);
+}
+
+.btn-volume.selected {
+  background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow));
+  border-color: transparent;
+  color: #1a1a2e;
+  font-weight: 800;
+}
+
+.volume-custom-row {
+  margin-bottom: 12px;
+}
+
+/* === FORMULAIRES === */
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(26, 26, 46, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: 'Nunito', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: var(--accent-orange);
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Carte succès scanner */
+.scanner-success {
+  text-align: center;
+  border-color: var(--accent-green) !important;
+  color: var(--accent-green);
+}
+
+.scanner-success p {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+/* === RADIO / GROUPES === */
+
+.radio-group {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+/* === MODALE FIN DE SOIRÉE === */
+
+/* Fond semi-transparent */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Boîte de la modale */
+.modal-box {
+  background: #2a2a4e;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px 20px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90svh;
+  overflow-y: auto;
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Résumé rapide (3 colonnes) */
+.modal-summary {
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+  background: rgba(26, 26, 46, 0.6);
+  border-radius: 12px;
+  padding: 14px 8px;
+  margin: 14px 0 20px;
+}
+
+.modal-summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.modal-summary-value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.modal-summary-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.modal-field-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+/* Notation par étoiles */
+.star-rating {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.star {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--border);
+  padding: 0;
+  line-height: 1;
+  transition: color 0.12s, transform 0.15s;
+}
+
+.star:hover {
+  transform: scale(1.2);
+}
+
+.star.active {
+  color: var(--accent-yellow);
+  transform: scale(1.1);
+}
+
+/* Zone de texte commentaire */
+.modal-textarea {
+  width: 100%;
+  background: rgba(26, 26, 46, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Nunito', sans-serif;
+  padding: 10px 12px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modal-textarea:focus {
+  border-color: var(--accent-orange);
+}
+
+.modal-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* Carte résumé après fin de soirée */
+.session-ended-card {
+  border-color: var(--accent-green) !important;
+  animation: fadeIn 0.3s ease;
+}
+
+/* === ANIMATIONS === */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* === PAGE LOGIN === */
+
+.login-hero {
+  text-align: center;
+  margin-bottom: 32px;
+  padding-top: 20px;
+}
+
+.login-emoji {
+  font-size: 5rem;
+  line-height: 1;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.login-title {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+.login-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  font-weight: 600;
+}
+
+/* === HISTORIQUE === */
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Carte soirée — avec bande colorée latérale */
+.session-card {
+  position: relative;
+  padding-left: 24px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s;
+}
+
+.session-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+}
+
+/* Indicateur coloré gauche */
+.session-card::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 16px;
+  bottom: 16px;
+  width: 4px;
+  border-radius: 4px;
+  background: var(--text-muted);
+}
+
+.session-card.bac-safe::before   { background: var(--accent-green); }
+.session-card.bac-warn::before   { background: var(--accent-yellow); }
+.session-card.bac-danger::before { background: var(--accent-red); }
+
+.session-date {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.session-hours {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.session-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.stat-pill {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.session-comment {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 4px;
+}
+
+.session-rating {
+  font-size: 14px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.session-link {
+  font-size: 12px;
+  color: var(--accent-orange);
+  display: block;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.badge-en-cours {
+  background: var(--accent-orange);
+  color: #1a1a2e;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+/* === LISTE DES BOISSONS === */
+
+.drinks-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.drink-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.drink-item:last-child {
+  border-bottom: none;
+}
+
+.drink-name {
+  flex: 1;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.drink-details {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.drink-time {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* === DÉTAIL SESSION === */
+
+.stats-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(26, 26, 46, 0.6);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.session-detail-header {
+  border-left: 4px solid var(--accent-orange);
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--accent-orange);
+  font-size: 14px;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 12px;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.btn-back:hover {
+  opacity: 0.8;
+}
+
+.duree-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* === INSTALL PROMPT PWA === */
+
+.install-prompt {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 300;
+  background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow));
+  color: #1a1a2e;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.5);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@media (min-width: 480px) {
+  .install-prompt {
+    max-width: 420px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 0 0 14px 14px;
+  }
+}
+
+.install-prompt-text {
+  flex: 1;
+}
+
+.install-prompt-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.install-prompt-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.install-prompt-btn:active {
+  transform: scale(0.95);
+}
+
+.install-prompt-btn.primary {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.install-prompt-btn.dismiss {
+  background: rgba(26, 26, 46, 0.2);
+  color: #1a1a2e;
+}
+
+/* === MESSAGES ERREUR / SUCCÈS === */
+
+.error-message,
+.error-text {
+  color: var(--accent-red);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.success-message {
+  color: var(--accent-green);
+  font-size: 14px;
+  margin-bottom: 12px;
+}

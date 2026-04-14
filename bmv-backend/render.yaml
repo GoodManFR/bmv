@@ -1,0 +1,24 @@
+# Blueprint Render — BMV Backend (FastAPI)
+# Documentation : https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: bmv-backend
+    runtime: python
+    region: frankfurt
+    plan: free
+    rootDir: bmv-backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false

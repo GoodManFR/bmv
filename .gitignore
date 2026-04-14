@@ -1,0 +1,25 @@
+# Secrets et variables d'environnement — ne jamais committer
+.env
+.env.local
+.env.*.local
+
+# Fichiers de mots de passe / secrets locaux
+mot de passe*.txt
+passwords*.txt
+
+# Clés de service Firebase (toutes variantes)
+firebase-service-account.json
+*-service-account.json
+*-firebase-adminsdk-*.json
+
+# Dépendances Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Éditeurs
+.vscode/
+.idea/
+*.sw?
