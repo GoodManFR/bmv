@@ -1,11 +1,14 @@
 # Router boissons — recherche et log des boissons
 # Sécurisé par JWT : chaque utilisateur ne voit et n'enregistre que ses propres boissons
 
+import logging
 from fastapi import APIRouter, Depends, HTTPException, Query
 from app.dependencies import get_authenticated_user_id
 from app.models.schemas import DrinkCreate, ProductInfo, SearchResult
 from app.services.openfoodfacts import search_by_ean
 from app.services.supabase import supabase
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/drinks", tags=["boissons"])
 
@@ -13,24 +16,73 @@ router = APIRouter(prefix="/drinks", tags=["boissons"])
 @router.get(
     "/search",
     response_model=SearchResult,
-    summary="Rechercher une boisson par code EAN via Open Food Facts",
+    summary="Rechercher une boisson par code EAN via cache Supabase + Open Food Facts",
 )
 async def search_drink(
     ean: str = Query(..., description="Code EAN du produit à rechercher"),
+    force_refresh: bool = Query(False, description="Ignorer le cache et forcer un appel OFF"),
 ):
     """
-    Appelle l'API Open Food Facts pour récupérer les infos d'une boisson.
+    Recherche une boisson par code EAN.
+
+    Flux :
+    1. Cherche dans la table `products` (cache Supabase)
+    2. Si trouvé en cache et `force_refresh=false` → retourne directement
+    3. Sinon → appelle Open Food Facts
+    4. Si OFF répond → insère/met à jour le cache puis retourne
+    5. Si OFF retourne None → retourne { found: false }
 
     - **found: true** → `product` contient les infos (nom, marque, ABV, image, catégorie)
     - **found: false** → boisson introuvable ou sans degré d'alcool renseigné
     """
-    try:
-        product_data = await search_by_ean(ean)
-    except RuntimeError as exc:
-        raise HTTPException(status_code=502, detail=str(exc))
+    # 1. Lookup dans le cache Supabase (sauf si force_refresh demandé)
+    if not force_refresh:
+        cache_response = (
+            supabase.table("products")
+            .select("*")
+            .eq("ean_code", ean)
+            .limit(1)
+            .execute()
+        )
+        if cache_response.data:
+            cached = cache_response.data[0]
+            logger.info("Cache hit pour EAN %s", ean)
+            return SearchResult(
+                found=True,
+                product=ProductInfo(
+                    name=cached["name"],
+                    brand=cached.get("brand"),
+                    abv=cached["abv"],
+                    image_url=cached.get("image_url"),
+                    category=cached.get("category", "other"),
+                ),
+            )
 
+    # 2. Appel Open Food Facts
+    product_data = await search_by_ean(ean)
+
+    # OFF indisponible (timeout, rate-limit, erreur réseau) → None sans données produit
     if product_data is None:
         return SearchResult(found=False, product=None)
+
+    # 3. Insérer/mettre à jour le cache (upsert sur ean_code pour éviter les doublons)
+    try:
+        supabase.table("products").upsert(
+            {
+                "ean_code": ean,
+                "name": product_data["name"],
+                "brand": product_data.get("brand"),
+                "abv": product_data["abv"],
+                "image_url": product_data.get("image_url"),
+                "category": product_data.get("category", "other"),
+                "source": "openfoodfacts",
+            },
+            on_conflict="ean_code",
+        ).execute()
+        logger.info("Produit EAN %s mis en cache", ean)
+    except Exception as exc:
+        # Le cache est best-effort : une erreur d'insertion ne bloque pas la réponse
+        logger.warning("Impossible de mettre en cache l'EAN %s : %s", ean, exc)
 
     return SearchResult(found=True, product=ProductInfo(**product_data))
 

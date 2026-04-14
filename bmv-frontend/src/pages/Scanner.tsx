@@ -110,9 +110,13 @@ const Scanner: React.FC = () => {
     }
   }, [stopScanner]);
 
+  // Message d'erreur OFF à afficher dans l'état not_found
+  const [offError, setOffError] = useState<string | null>(null);
+
   // ── Recherche produit par EAN ─────────────────────────────────────────────
   const fetchProduct = useCallback(async (ean: string) => {
     setState('loading');
+    setOffError(null);
     try {
       const result = await api.getProductByEan(ean);
       if (result.found && result.product) {
@@ -125,7 +129,9 @@ const Scanner: React.FC = () => {
         setState('not_found');
       }
     } catch {
+      // Erreur réseau ou réponse 5xx du backend → message friendly
       setProduct(null);
+      setOffError("😵 Open Food Facts ne répond pas. Essaie la saisie manuelle !");
       setState('not_found');
     }
   }, []);
@@ -220,6 +226,7 @@ const Scanner: React.FC = () => {
     setSelectedVolume(null);
     setCustomVolume('');
     setCameraError(null);
+    setOffError(null);
     setManualName('');
     setManualAbv('');
     setManualVolume('');
@@ -370,11 +377,25 @@ const Scanner: React.FC = () => {
       {/* ── Produit non trouvé ── */}
       {state === 'not_found' && (
         <div className="card">
-          <p className="scanner-not-found">😕 Boisson non trouvée dans la base.</p>
-          <p className="text-muted">Entre les infos manuellement.</p>
-          <button className="btn-primary" onClick={() => { setManualName(''); setManualAbv(''); setManualVolume(''); setManualError(null); setState('manual'); }}>
-            ✏️ Saisie manuelle
-          </button>
+          {offError ? (
+            <>
+              <p className="scanner-not-found">{offError}</p>
+              <button
+                className="btn-primary"
+                onClick={() => { setOffError(null); setManualName(''); setManualAbv(''); setManualVolume(''); setManualError(null); setState('manual'); }}
+              >
+                ✏️ Saisie manuelle
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="scanner-not-found">😕 Produit non trouvé dans la base.</p>
+              <p className="text-muted">Tu peux le saisir manuellement.</p>
+              <button className="btn-primary" onClick={() => { setManualName(''); setManualAbv(''); setManualVolume(''); setManualError(null); setState('manual'); }}>
+                ✏️ Saisie manuelle
+              </button>
+            </>
+          )}
           <button className="btn-ghost" onClick={startScanner}>
             🔄 Réessayer le scan
           </button>

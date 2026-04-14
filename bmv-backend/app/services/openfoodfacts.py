@@ -1,9 +1,13 @@
 # Service Open Food Facts — recherche de produits par code EAN
+import asyncio
+import logging
 import httpx
+
+logger = logging.getLogger(__name__)
 
 OFF_API_URL = "https://world.openfoodfacts.org/api/v2/product"
 HEADERS = {"User-Agent": "BMV App/1.0"}
-TIMEOUT = 8.0  # secondes
+TIMEOUT = 10.0  # secondes
 
 # Mots-clés dans categories_tags pour identifier le type de boisson
 _BEER_KEYS = {"beers", "bières", "ales", "lagers", "stouts", "craft-beers"}
@@ -24,30 +28,58 @@ def _detect_category(categories_tags: list[str]) -> str:
     return "other"
 
 
+async def _fetch_off(client: httpx.AsyncClient, url: str) -> httpx.Response | None:
+    """
+    Effectue un appel GET vers OFF.
+    Gère le rate-limit 429 avec un retry unique après 2 secondes.
+    Retourne None si l'erreur persiste ou si une erreur serveur survient.
+    """
+    response = await client.get(url)
+
+    if response.status_code == 429:
+        logger.warning("Open Food Facts : rate-limit (429), retry dans 2s…")
+        await asyncio.sleep(2)
+        response = await client.get(url)
+        if response.status_code == 429:
+            logger.warning("Open Food Facts : rate-limit persistant après retry → abandon")
+            return None
+
+    if response.status_code >= 500:
+        logger.warning("Open Food Facts : erreur serveur %s", response.status_code)
+        return None
+
+    return response
+
+
 async def search_by_ean(ean_code: str) -> dict | None:
     """
     Interroge l'API Open Food Facts pour récupérer les infos d'un produit.
 
     Retourne un dict { name, brand, abv, image_url, category }
-    ou None si le produit est introuvable ou ne possède pas de degré d'alcool.
+    ou None si le produit est introuvable, sans degré d'alcool, ou en cas d'erreur OFF.
     """
     url = f"{OFF_API_URL}/{ean_code}.json"
 
     try:
         async with httpx.AsyncClient(headers=HEADERS, timeout=TIMEOUT) as client:
-            response = await client.get(url)
+            response = await _fetch_off(client, url)
     except httpx.TimeoutException:
-        raise RuntimeError("L'API Open Food Facts ne répond pas (timeout)")
+        logger.warning("Open Food Facts : timeout pour EAN %s", ean_code)
+        return None
     except httpx.RequestError as exc:
-        raise RuntimeError(f"Erreur réseau Open Food Facts : {exc}")
+        logger.warning("Open Food Facts : erreur réseau pour EAN %s : %s", ean_code, exc)
+        return None
+
+    # _fetch_off retourne None en cas de 429 persistant ou 5xx
+    if response is None:
+        return None
 
     if response.status_code == 404:
         return None
 
     if response.status_code != 200:
-        raise RuntimeError(
-            f"Open Food Facts a retourné un statut inattendu : {response.status_code}"
-        )
+        logger.warning("Open Food Facts : statut inattendu %s pour EAN %s", response.status_code, ean_code)
+        return None
 
     data = response.json()
 
