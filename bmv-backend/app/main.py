@@ -16,9 +16,11 @@ app = FastAPI(
 if settings.environment == "development":
     cors_config = {"allow_origin_regex": r"http://(localhost|192\.168\.\d+\.\d+):\d+"}
 else:
-    # Autorise le domaine principal ET les URLs de preview Vercel
     cors_config = {
-        "allow_origin_regex": r"https://(bmv-indol\.vercel\.app|bmv-[a-z0-9]+-goodmanfrs-projects\.vercel\.app)"
+        "allow_origins": [
+            "https://bmv-indol.vercel.app",
+        ],
+        "allow_origin_regex": r"https://bmv-.*\.vercel\.app",
     }
 
 app.add_middleware(
