@@ -12,13 +12,14 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# ── CORS ─────────────────────────────────────────────────────────────────────
-# En dev : autorise tous les ports localhost (Vite peut utiliser 5173, 5174, etc.)
-# En prod : restreint à l'URL frontend configurée dans FRONTEND_URL
+# ── CORS ──────────────────────────────────────────────────────────────────────
 if settings.environment == "development":
     cors_config = {"allow_origin_regex": r"http://(localhost|192\.168\.\d+\.\d+):\d+"}
 else:
-    cors_config = {"allow_origins": [settings.frontend_url]}
+    # Autorise le domaine principal ET les URLs de preview Vercel
+    cors_config = {
+        "allow_origin_regex": r"https://(bmv-indol\.vercel\.app|bmv-[a-z0-9]+-goodmanfrs-projects\.vercel\.app)"
+    }
 
 app.add_middleware(
     CORSMiddleware,
